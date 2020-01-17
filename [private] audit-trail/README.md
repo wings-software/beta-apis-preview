@@ -1,26 +1,37 @@
-Below is the  v1.0 of query schema for Audit Trail.
+Below is the v1.0-alpha of query schema for Audit Trail.
 
 ## Queries
 
 ```
-extend type Query {
-  # Get a list of audits. This returns paginated data.
-  audits(filters: [ChangeSetFilter], limit: Int!, offset: Int): ChangeSetConnection @dataFetcher(name: changeSetConnection)
-  # Get yaml diff for an audit (and a specific resource within the audit)
-  auditChangeContent(filters: [ChangeContentFilter], limit: Int!, offset: Int): ChangeContentConnection  @dataFetcher(name: changeContentConnection)
-}
+# Get difference in terms of YAML for a changeSet (and a specific resource within the changeSet).This returns paginated data.
+auditChangeContent(
+filters: [ChangeContentFilter]
+limit: Int!
+offset: Int
+): ChangeContentConnection
+
+
+# Get a list of changeSets.This returns paginated data.
+audits(
+  filters: [ChangeSetFilter]
+  limit: Int!
+  offset: Int
+): ChangeSetConnection
 ```
 
 ## Schema
 
 ```
-type ChangeContentList {
-  data: [ChangeContent]
+input ChangeContentFilter {
+  # Unique ID of a changeSet
+  changeSetId: String!
+  
+  # Unique ID of dependent or child resource, e.g.Environment, Services, etc.
+  resourceId: String
 }
 
-input ChangeContentFilter{
-  changeSetId: String!
-  resourceId: String
+type ChangeContentList {
+  data: [ChangeContent]
 }
 
 type ChangeSetConnection {
@@ -34,63 +45,141 @@ type ChangeContentConnection {
 }
 
 interface ChangeSet {
-  id: String
-  changes: [ChangeDetail]
-  triggeredAt: DateTime
-  request: RequestInfo
+  # List of all changeDetails
+  changes: [ChangeDetails]
+
+  # Failure message
   failureStatusMsg: String
+
+  # Unique ID of a changeSet
+  id: String
+
+  # HTTP request that triggered the changeSet
+  request: RequestInfo
+
+  # Timestamp when changeSet was triggered
+  triggeredAt: DateTime
 }
 
 type UserChangeSet implements ChangeSet{
-  id: String
-  changes: [ChangeDetail]
-  triggeredAt: DateTime
-  request: RequestInfo
+  # List of all changeDetails
+  changes: [ChangeDetails]
+
+  # Failure message
   failureStatusMsg: String
+
+  # Unique ID of a changeSet
+  id: String
+
+  # HTTP request that triggered the changeSet
+  request: RequestInfo
+
+  # Timestamp when changeSet was triggered
+  triggeredAt: DateTime
+
+  # User who triggered the changeSet
   triggeredBy: User
 }
 
 type GitChangeSet implements ChangeSet {
-  id: String
-  changes: [ChangeDetail]
-  triggeredAt: DateTime
-  request: RequestInfo
-  failureStatusMsg: String
+  # Git author who triggered the changeSet
   author: String
+
+  # List of all changeDetails
+  changes: [ChangeDetails]
+
+  # Failure message
+  failureStatusMsg: String
+
+  # Git commit ID that triggered the changeSet
   gitCommitId: String
+
+  # Unique ID of a changeSet
+  id: String
+
+  # Git repository URL that triggered the changeSet
   repoUrl: String
+
+  # HTTP request that triggered the changeSet
+  request: RequestInfo
+
+  # Timestamp when changeSet was triggered
+  triggeredAt: DateTime
 }
 
 type RequestInfo {
-  url: String
-  resourcePath: String
-  requestMethod: String
-  responseStatusCode: Number
+  # IP Address of request source
   remoteIpAddress: String
+
+  # HTTP Request method
+  requestMethod: String
+
+  # Resource endpoint
+  resourcePath: String
+
+  # Response status code
+  responseStatusCode: Number
+
+  # Request URL
+  url: String
 }
 
 type ChangeDetail {
-  resourceId: String
-  resourceType: String
-  resourceName: String
-  operationType: String
-  failure: Boolean
+  # Application ID
   appId: String
+
+  # Application name
   appName: String
-  parentResourceId: String
-  parentResourceName: String
-  parentResourceType: String
-  parentResourceOperation: String
+
+  # Timestamp of changeDetails creation
   createdAt: DateTime
+
+  # Indicator of successful processing of the event that caused this changeSet
+  failure: Boolean
+
+  # Create / Update / Delete operation
+  operationType: String
+
+  # Unique ID of parent resource, e.g., Application
+  parentResourceId: String
+  
+  # Parent resource name
+  parentResourceName: String
+
+  # Create / Update / Delete operation on parent resource
+  parentResourceOperation: String
+
+  # Parent resource type
+  parentResourceType: String
+
+  # Unique ID of dependent or child resource, e.g., Environment, Services, etc.
+  resourceId: String
+
+  # Resource name
+  resourceName: String
+
+  # Resource type
+  resourceType: String
 }
 
 type ChangeContent{
+  # Unique ID of a changeSet
   changeSetId: String
-  resourceId: String
-  oldYaml: String
-  oldYamlPath: String
+  
+  # New YAML content after the changeSet got triggered
   newYaml: String
+
+  # New YAML path after the changeSet got triggered
   newYamlPath: String
+
+  # Old YAML content before the changeSet got triggered
+  oldYaml: String
+
+  # Old YAML path before the changeSet got triggered
+  oldYamlPath: String
+
+  # Unique ID of a resource, e.g.Application, Environment
+  resourceId: String
 }
 
 """ Filters """
@@ -103,6 +192,7 @@ input ChangeSetFilter {
 input TimeRangeFilter {
   # Filter within a specific time range
   specific: TimeRange
+  
   # Filter for a relative time period
   relative: RelativeTimeRange
 }
