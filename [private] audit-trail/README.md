@@ -1,15 +1,19 @@
 Below is the  v1.0 of query schema for Audit Trail.
 
+## Queries
+
 ```
 extend type Query {
-  #Get a list of audits. This returns paginated data.
+  # Get a list of audits. This returns paginated data.
   audits(filters: [ChangeSetFilter], limit: Int!, offset: Int): ChangeSetConnection @dataFetcher(name: changeSetConnection)
-  #Get yaml diff for an audit (and a specific resource within the audit)
+  # Get yaml diff for an audit (and a specific resource within the audit)
   auditChangeContent(filters: [ChangeContentFilter], limit: Int!, offset: Int): ChangeContentConnection  @dataFetcher(name: changeContentConnection)
 }
+```
 
-""" Schema """
+## Schema
 
+```
 type ChangeContentList {
   data: [ChangeContent]
 }
@@ -95,11 +99,11 @@ input ChangeSetFilter {
   time: TimeRangeFilter
 }
 
-#Filter by time
+# Filter by time
 input TimeRangeFilter {
-  #Filter within a specific time range
+  # Filter within a specific time range
   specific: TimeRange
-  #Filter for a relative time period
+  # Filter for a relative time period
   relative: RelativeTimeRange
 }
 
@@ -113,7 +117,7 @@ input RelativeTimeRange {
   noOfUnits: Number!
 }
 
-enum TimeUnit{
+enum TimeUnit {
   WEEKS,
   DAYS,
   HOURS,
