@@ -1,8 +1,8 @@
-# Harness Alpha GraphQL APIs
+# Harness Beta GraphQL APIs
 
 This repo contains documentation to a preview of https://harness.io upcoming APIs. 
 
-These APIs are in Alpha stage which means they are not final and subject to change.
+These APIs are in Beta stage which means they are not final and subject to change.
 
 # Got Feedback?
 
